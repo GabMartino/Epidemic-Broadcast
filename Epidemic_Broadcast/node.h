@@ -12,6 +12,7 @@
 #define __PROJECT_TEST_NODE_H_
 
 #include <omnetpp.h>
+#include "broadcastMessage_m.h"
 
 using namespace omnetpp;
 //

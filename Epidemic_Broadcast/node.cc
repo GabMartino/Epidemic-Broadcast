@@ -27,7 +27,7 @@ void Node::initialize()
         displayString.setTagArg("i", 0, "block/broadcast");
 
         //Broadcast a message
-        cMessage* msg = new cMessage("BROADCAST");
+        BroadcastMessage* msg = new BroadcastMessage("BROADCAST");
         for (int i = 0; i < this->gateCount()/2; i++)
         {
             cMessage *copy = msg->dup();
@@ -42,15 +42,16 @@ void Node::initialize()
 void Node::handleMessage(cMessage *msg)
 {
 
+    BroadcastMessage* bmsg = check_and_cast<BroadcastMessage*>(msg);
     bubble("MESSAGGIO RICEVUTO");
     // if I'm not infected, infect. and rebroadcast the message
     if(!infected){
         infected = true;
+        bmsg->setHopCount(bmsg->getHopCount()+1);
 
-        cMessage* msg = new cMessage("BROADCAST");
         for (int i = 0; i < this->gateCount()/2; i++)
            {
-               cMessage *copy = msg->dup();
+            BroadcastMessage *copy = bmsg->dup();
                send(copy, "outgate", i);
            }
            delete msg;

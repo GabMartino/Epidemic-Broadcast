@@ -40,7 +40,7 @@ network Floor
         
         
         for i=0..numberOfNodes-1, for j=0..numberOfNodes-1 {
-            node[i].outgate++ --> node[j].ingate++ 
+            node[i].outgate++ -->{delay = 100ms;} --> node[j].ingate++ 
             								if i != j && ((node[i].posX - node[j].posX)^2 + (node[i].posY- node[j].posY)^2) <= R^2;
 	
         }
