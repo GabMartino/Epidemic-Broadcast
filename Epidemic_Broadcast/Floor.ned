@@ -1,14 +1,12 @@
-
-//        Performance Evaluation Project
-//        
-//        Epidemic Broadcast
-//        
-//        Authors:
-//        	Gabriele Martino - Maurizio Pulizzi - Antonio Di Tecco
-//        	
-//	
-
-
+//
+// 	Performance Evaluation Project
+//
+//	Epidemic Broadcast
+// 
+//   	Authors:
+// 
+//   	Di Tecco Antonio - Martino Gabriele - Pulizzi Maurizio
+ 
 network Floor
 {
     parameters:

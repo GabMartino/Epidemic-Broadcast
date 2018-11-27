@@ -1,14 +1,17 @@
-
-//        Performance Evaluation Project
-//
-//        Epidemic Broadcast
-//
-//        Authors:
-//          Gabriele Martino - Maurizio Pulizzi - Antonio Di Tecco
-//
-//
+/*
+ *  Performance Evaluation Project
+ *
+ *  Epidemic Broadcast
+ *
+ *  Authors:
+ *
+ *  Di Tecco Antonio - Martino Gabriele - Pulizzi Maurizio
+ *
+ */
 
 #include <omnetpp.h>
+#include "EpidemicMessage_m.h"
+
 using namespace omnetpp;
 
 class Node : public cSimpleModule
@@ -27,13 +30,15 @@ class Node : public cSimpleModule
         double retransmissionProbability;
 
         // stored message
-        cMessage* messageToRetransmit;
+        epidemicMessage* messageToRetransmit = nullptr;
 
         // counter of message received in a slot time of a reception attempt
         int messageCounter = 0;
+
+        virtual void broadcastMessage();
+        virtual void tryToSend();
     protected:
         virtual void initialize();
         virtual void handleMessage(cMessage *msg);
-        virtual void broadcastMessage(cMessage* msg);
-        virtual void tryToSend(cMessage* msg);
+
 };

@@ -1,12 +1,13 @@
-
-//        Performance Evaluation Project
-//
-//        Epidemic Broadcast
-//
-//        Authors:
-//          Gabriele Martino - Maurizio Pulizzi - Antonio Di Tecco
-//
-//
+/*
+ *  Performance Evaluation Project
+ *
+ *  Epidemic Broadcast
+ *
+ *  Authors:
+ *
+ *  Di Tecco Antonio - Martino Gabriele - Pulizzi Maurizio
+ *
+ */
 
 #include "Node.h"
 
@@ -18,14 +19,11 @@ void Node::initialize()
     slotTime = getParentModule()->par("slotTime").doubleValue();
     retransmissionProbability = getParentModule()->par("P").doubleValue();
 
-    // Initialize the pointer for the broadcast message
-    messageToRetransmit = nullptr;
-
     // if this is the starter node
     if(this->getIndex() == getParentModule()->par("indexOfStartingNode").intValue()){
         //being the starting node is also infected
         infected = true;
-        transmitted = false;
+        transmitted = true;
 
         //change icon of the simulation to show the infection (is used with hasGUi to distiguish graphic or console simulation)
         if(hasGUI()){
@@ -34,9 +32,9 @@ void Node::initialize()
         }
 
         // make the first message and broadcast
-        messageToRetransmit = new cMessage("Broadcast");
-        //broadcastMessage();
-        scheduleAt(simTime()+0.0, new cMessage("Retry to send"));
+        messageToRetransmit = new epidemicMessage("Broadcast");
+        messageToRetransmit->setHopCount(0);
+        broadcastMessage();
     }
 }
 
@@ -63,7 +61,7 @@ void Node::handleMessage(cMessage *msg)
                }
 
                // try to transmitt
-               tryToSend(messageToRetransmit);
+               tryToSend();
            }else{// otherwise collision: other messages arrived in a slotTime
                bubble("COLLISION");
 
@@ -79,14 +77,14 @@ void Node::handleMessage(cMessage *msg)
            messageCounter++;
            if(messageCounter == 1){ // first attempt
                // storing of the message
-               messageToRetransmit = msg->dup();
+               messageToRetransmit = check_and_cast<epidemicMessage*>(msg)->dup();
 
                // The transmission time is a slot so a selfmessage is sent when the transmission is finished
                scheduleAt(simTime() + slotTime, new cMessage("Reception finished"));
            }
        }
     }else if(!transmitted && infected){// this node is infected and tries to broadcast infection
-        tryToSend(messageToRetransmit);
+        tryToSend();
     }
 
     // delete anyway the message: if a new one, 'cause has been stored, if is collision one or if is a selfMessage one
@@ -98,8 +96,7 @@ void Node::handleMessage(cMessage *msg)
  * This method takes a message and tries to transmit with a certain probability
  * otherwise postpones to the next slot another try
  */
-void Node::tryToSend(cMessage* msg){
-
+void Node::tryToSend(){
     // extracts a 0 or a 1 with a Bernuallian probability setted
     int check = bernoulli(retransmissionProbability);
 
@@ -111,12 +108,9 @@ void Node::tryToSend(cMessage* msg){
         bubble("TRANSMITTED");
 
         // broadcast the message
-        broadcastMessage(msg);
-
-        // delete the stored message
-        delete messageToRetransmit;
+        broadcastMessage();
     }else{
-        EV<< "Try to transmitt next time"<<endl;
+        EV<< "Try to transmit next time"<<endl;
 
         // Postpone another try to the next slot
         scheduleAt(simTime() + slotTime, new cMessage("Retry to send"));
@@ -128,7 +122,7 @@ void Node::tryToSend(cMessage* msg){
  * This method broadcasts a message to all output gates connected.
  *
  */
-void Node::broadcastMessage(cMessage* msg){
+void Node::broadcastMessage(){
     /*
      * Given that we used inout gates and we have doplicated gate.
      * We need only out gate so we divided by 2 the number
@@ -136,10 +130,12 @@ void Node::broadcastMessage(cMessage* msg){
      *
      */
     int numGateOut = this->gateCount()/2;
+    // increment the hopcount of the message
+    messageToRetransmit->setHopCount(messageToRetransmit->getHopCount()+1);
 
     for(int i= 0; i < numGateOut; i++){
-        cMessage* copy = msg->dup();
+        epidemicMessage* copy = messageToRetransmit->dup();
         send(copy, "gate$o",i);
     }
-
+    delete messageToRetransmit;
 }

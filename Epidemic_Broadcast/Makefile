@@ -1,12 +1,12 @@
 #
-# OMNeT++/OMNEST Makefile for Epidemic_Broadcast
+# OMNeT++/OMNEST Makefile for Epidemic_Broadcast_1
 #
 # This file was generated with the command:
 #  opp_makemake -f --deep -O out -I.
 #
 
 # Name of target to be created (-o option)
-TARGET = Epidemic_Broadcast$(D)$(EXE_SUFFIX)
+TARGET = Epidemic_Broadcast_1$(D)$(EXE_SUFFIX)
 TARGET_DIR = .
 
 # User interface (uncomment one) (-u option)
@@ -30,10 +30,11 @@ PROJECTRELATIVE_PATH =
 O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc, .msg and .sm files
-OBJS = $O/Node.o
+OBJS = $O/Node.o $O/EpidemicMessage_m.o
 
 # Message files
-MSGFILES =
+MSGFILES = \
+    EpidemicMessage.msg
 
 # SM files
 SMFILES =
