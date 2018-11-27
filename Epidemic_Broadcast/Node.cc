@@ -12,19 +12,14 @@
 
 Define_Module(Node);
 
-Node::Node(){
-    messageToRetransmit = nullptr;
-}
-
-Node::~Node(){
-    //delete messageToRetransmit;
-}
-
 void Node::initialize()
 {
     // Take the slotTime and retransmissionProbability parameters from the network parameters
     slotTime = getParentModule()->par("slotTime").doubleValue();
     retransmissionProbability = getParentModule()->par("P").doubleValue();
+
+    // Initialize the pointer for the broadcast message
+    messageToRetransmit = nullptr;
 
     // if this is the starter node
     if(this->getIndex() == getParentModule()->par("indexOfStartingNode").intValue()){
