@@ -12,14 +12,6 @@
 
 Define_Module(Node);
 
-Node::Node(){
-    messageToRetransmit = nullptr;
-}
-
-Node::~Node(){
-    //delete messageToRetransmit;
-}
-
 void Node::initialize()
 {
     // Take the slotTime and retransmissionProbability parameters from the network parameters
@@ -30,7 +22,7 @@ void Node::initialize()
     if(this->getIndex() == getParentModule()->par("indexOfStartingNode").intValue()){
         //being the starting node is also infected
         infected = true;
-        transmitted = false;
+        transmitted = true;
 
         //change icon of the simulation to show the infection (is used with hasGUi to distiguish graphic or console simulation)
         if(hasGUI()){
@@ -39,9 +31,8 @@ void Node::initialize()
         }
 
         // make the first message and broadcast
-        messageToRetransmit = new cMessage("Broadcast");
-        //broadcastMessage();
-        scheduleAt(simTime()+0.0, new cMessage("Retry to send"));
+        cMessage* msg = new cMessage("Broadcast");
+        broadcastMessage(msg);
     }
 }
 
@@ -148,3 +139,4 @@ void Node::broadcastMessage(cMessage* msg){
     }
 
 }
+

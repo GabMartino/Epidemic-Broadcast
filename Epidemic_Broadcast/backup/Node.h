@@ -11,6 +11,7 @@
 #include <omnetpp.h>
 using namespace omnetpp;
 
+
 class Node : public cSimpleModule
 {
     private:
@@ -31,9 +32,6 @@ class Node : public cSimpleModule
 
         // counter of message received in a slot time of a reception attempt
         int messageCounter = 0;
-    public:
-        Node();
-        virtual ~Node();
     protected:
         virtual void initialize();
         virtual void handleMessage(cMessage *msg);
