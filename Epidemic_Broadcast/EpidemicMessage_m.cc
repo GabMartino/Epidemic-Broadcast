@@ -181,6 +181,7 @@ Register_Class(epidemicMessage)
 
 epidemicMessage::epidemicMessage(const char *name, short kind) : ::omnetpp::cMessage(name,kind)
 {
+    this->slotTimeCount = 0;
     this->hopCount = 0;
 }
 
@@ -203,19 +204,32 @@ epidemicMessage& epidemicMessage::operator=(const epidemicMessage& other)
 
 void epidemicMessage::copy(const epidemicMessage& other)
 {
+    this->slotTimeCount = other.slotTimeCount;
     this->hopCount = other.hopCount;
 }
 
 void epidemicMessage::parsimPack(omnetpp::cCommBuffer *b) const
 {
     ::omnetpp::cMessage::parsimPack(b);
+    doParsimPacking(b,this->slotTimeCount);
     doParsimPacking(b,this->hopCount);
 }
 
 void epidemicMessage::parsimUnpack(omnetpp::cCommBuffer *b)
 {
     ::omnetpp::cMessage::parsimUnpack(b);
+    doParsimUnpacking(b,this->slotTimeCount);
     doParsimUnpacking(b,this->hopCount);
+}
+
+int epidemicMessage::getSlotTimeCount() const
+{
+    return this->slotTimeCount;
+}
+
+void epidemicMessage::setSlotTimeCount(int slotTimeCount)
+{
+    this->slotTimeCount = slotTimeCount;
 }
 
 int epidemicMessage::getHopCount() const
@@ -293,7 +307,7 @@ const char *epidemicMessageDescriptor::getProperty(const char *propertyname) con
 int epidemicMessageDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 1+basedesc->getFieldCount() : 1;
+    return basedesc ? 2+basedesc->getFieldCount() : 2;
 }
 
 unsigned int epidemicMessageDescriptor::getFieldTypeFlags(int field) const
@@ -306,8 +320,9 @@ unsigned int epidemicMessageDescriptor::getFieldTypeFlags(int field) const
     }
     static unsigned int fieldTypeFlags[] = {
         FD_ISEDITABLE,
+        FD_ISEDITABLE,
     };
-    return (field>=0 && field<1) ? fieldTypeFlags[field] : 0;
+    return (field>=0 && field<2) ? fieldTypeFlags[field] : 0;
 }
 
 const char *epidemicMessageDescriptor::getFieldName(int field) const
@@ -319,16 +334,18 @@ const char *epidemicMessageDescriptor::getFieldName(int field) const
         field -= basedesc->getFieldCount();
     }
     static const char *fieldNames[] = {
+        "slotTimeCount",
         "hopCount",
     };
-    return (field>=0 && field<1) ? fieldNames[field] : nullptr;
+    return (field>=0 && field<2) ? fieldNames[field] : nullptr;
 }
 
 int epidemicMessageDescriptor::findField(const char *fieldName) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     int base = basedesc ? basedesc->getFieldCount() : 0;
-    if (fieldName[0]=='h' && strcmp(fieldName, "hopCount")==0) return base+0;
+    if (fieldName[0]=='s' && strcmp(fieldName, "slotTimeCount")==0) return base+0;
+    if (fieldName[0]=='h' && strcmp(fieldName, "hopCount")==0) return base+1;
     return basedesc ? basedesc->findField(fieldName) : -1;
 }
 
@@ -342,8 +359,9 @@ const char *epidemicMessageDescriptor::getFieldTypeString(int field) const
     }
     static const char *fieldTypeStrings[] = {
         "int",
+        "int",
     };
-    return (field>=0 && field<1) ? fieldTypeStrings[field] : nullptr;
+    return (field>=0 && field<2) ? fieldTypeStrings[field] : nullptr;
 }
 
 const char **epidemicMessageDescriptor::getFieldPropertyNames(int field) const
@@ -410,7 +428,8 @@ std::string epidemicMessageDescriptor::getFieldValueAsString(void *object, int f
     }
     epidemicMessage *pp = (epidemicMessage *)object; (void)pp;
     switch (field) {
-        case 0: return long2string(pp->getHopCount());
+        case 0: return long2string(pp->getSlotTimeCount());
+        case 1: return long2string(pp->getHopCount());
         default: return "";
     }
 }
@@ -425,7 +444,8 @@ bool epidemicMessageDescriptor::setFieldValueAsString(void *object, int field, i
     }
     epidemicMessage *pp = (epidemicMessage *)object; (void)pp;
     switch (field) {
-        case 0: pp->setHopCount(string2long(value)); return true;
+        case 0: pp->setSlotTimeCount(string2long(value)); return true;
+        case 1: pp->setHopCount(string2long(value)); return true;
         default: return false;
     }
 }

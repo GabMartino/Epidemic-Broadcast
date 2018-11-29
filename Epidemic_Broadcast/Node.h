@@ -17,6 +17,11 @@ using namespace omnetpp;
 class Node : public cSimpleModule
 {
     private:
+        //signals
+        simsignal_t hopCountSignal;
+        simsignal_t collisionNumber;
+        simsignal_t slotCountSignal;
+
         // specifies infection (if an infection message is arrived with no collisions)
         bool infected = false;
 
@@ -35,10 +40,14 @@ class Node : public cSimpleModule
         // counter of message received in a slot time of a reception attempt
         int messageCounter = 0;
 
+        //number of collision
+        int numberOfCollision = 0;
+
         virtual void broadcastMessage();
         virtual void tryToSend();
     protected:
-        virtual void initialize();
-        virtual void handleMessage(cMessage *msg);
+        virtual void initialize() override;
+        virtual void handleMessage(cMessage *msg) override;
+        virtual void finish() override;
 
 };

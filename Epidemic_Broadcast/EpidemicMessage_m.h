@@ -23,6 +23,7 @@
  * <pre>
  * message epidemicMessage
  * {
+ *     int slotTimeCount = 0;
  *     int hopCount = 0;
  * 
  * }
@@ -31,7 +32,8 @@
 class epidemicMessage : public ::omnetpp::cMessage
 {
   protected:
-    int hopCount = 0;
+    int slotTimeCount;
+    int hopCount;
 
   private:
     void copy(const epidemicMessage& other);
@@ -50,6 +52,8 @@ class epidemicMessage : public ::omnetpp::cMessage
     virtual void parsimUnpack(omnetpp::cCommBuffer *b) override;
 
     // field getter/setter methods
+    virtual int getSlotTimeCount() const;
+    virtual void setSlotTimeCount(int slotTimeCount);
     virtual int getHopCount() const;
     virtual void setHopCount(int hopCount);
 };

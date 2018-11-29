@@ -19,6 +19,9 @@ void Node::initialize()
     slotTime = getParentModule()->par("slotTime").doubleValue();
     retransmissionProbability = getParentModule()->par("P").doubleValue();
 
+    hopCountSignal = registerSignal("Infection");
+    collisionNumber = registerSignal("Collisions");
+    slotCountSignal = registerSignal("SlotCountToTransmit");
     // if this is the starter node
     if(this->getIndex() == getParentModule()->par("indexOfStartingNode").intValue()){
         //being the starting node is also infected
@@ -33,7 +36,8 @@ void Node::initialize()
 
         // make the first message and broadcast
         messageToRetransmit = new epidemicMessage("Broadcast");
-        messageToRetransmit->setHopCount(0);
+        messageToRetransmit->setHopCount(-1);
+        messageToRetransmit->setSlotTimeCount(0);
         broadcastMessage();
     }
 }
@@ -54,12 +58,13 @@ void Node::handleMessage(cMessage *msg)
                infected = true;
                bubble("INFECTED");
 
+
+
                //change icon of the simulation to show the infection
                if(hasGUI()){
                    cDisplayString& displayString = getDisplayString();
                    displayString.setTagArg("i", 0, "block/circle");
                }
-
                // try to transmitt
                tryToSend();
            }else{// otherwise collision: other messages arrived in a slotTime
@@ -67,7 +72,7 @@ void Node::handleMessage(cMessage *msg)
 
                //reset counter
                messageCounter = 0;
-
+               numberOfCollision++;
                //delete the stored message
                delete messageToRetransmit;
            }
@@ -97,22 +102,27 @@ void Node::handleMessage(cMessage *msg)
  * otherwise postpones to the next slot another try
  */
 void Node::tryToSend(){
+
+
+    messageToRetransmit->setSlotTimeCount(messageToRetransmit->getSlotTimeCount()+1);
+
+
     // extracts a 0 or a 1 with a Bernuallian probability setted
     int check = bernoulli(retransmissionProbability);
 
     if(check){// broadcast message
         EV<< "Transmission in progress"<<endl;
-
+        EV<< "slot time "<<messageToRetransmit->getSlotTimeCount()<<endl;
         // set a variable of transmission
         transmitted = true;
         bubble("TRANSMITTED");
-
+        emit(slotCountSignal, messageToRetransmit->getSlotTimeCount());
         // broadcast the message
         broadcastMessage();
     }else{
         EV<< "Try to transmit next time"<<endl;
-
         // Postpone another try to the next slot
+
         scheduleAt(simTime() + slotTime, new cMessage("Retry to send"));
     }
 
@@ -124,7 +134,7 @@ void Node::tryToSend(){
  */
 void Node::broadcastMessage(){
     /*
-     * Given that we used inout gates and we have doplicated gate.
+     * Given that we used inout gates and we have duplicated gate.
      * We need only out gate so we divided by 2 the number
      * SEE IF THERE'S A METHOD THAT RETURNS ONLY THE OUTPUT GATE, OR USE AN ITERATOR
      *
@@ -132,10 +142,16 @@ void Node::broadcastMessage(){
     int numGateOut = this->gateCount()/2;
     // increment the hopcount of the message
     messageToRetransmit->setHopCount(messageToRetransmit->getHopCount()+1);
-
+    emit(hopCountSignal, messageToRetransmit->getHopCount());
     for(int i= 0; i < numGateOut; i++){
         epidemicMessage* copy = messageToRetransmit->dup();
         send(copy, "gate$o",i);
     }
     delete messageToRetransmit;
+}
+
+void Node::finish(){
+    if(numberOfCollision){
+        emit(collisionNumber, numberOfCollision);
+    }
 }

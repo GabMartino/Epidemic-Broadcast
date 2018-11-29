@@ -11,6 +11,7 @@
 
 message epidemicMessage{
     
+    int slotTimeCount = 0;
  	int hopCount = 0;   
     
 }
