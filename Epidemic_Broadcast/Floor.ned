@@ -11,19 +11,19 @@ network Floor
 {
     parameters:
         @signal[Infection](type="int");
-        @statistic[hopCountStat](title="Hop count"; source="Infection"; record = vector, stats; );
+        @statistic[hopCountStat](title="Hop count"; source="Infection"; record = count, mean, min, max; );
         
         
         @signal[SlotCountToTransmit](type="int");
-        @statistic[SlotTime](title="Broadcast Time"; source="SlotCountToTransmit"; record = vector, stats; );
+        @statistic[SlotTime](title="Broadcast Time"; source="SlotCountToTransmit"; record = count, mean, min, max; );
         
         @signal[Collisions](type="int");
-        @statistic[collisionStatistic](title= "Number of Collision"; source= "Collisions"; record = vector, stats;);
+        @statistic[collisionStatistic](title= "Number of Collision"; source= "Collisions"; record = count, mean, min, max;);
         
         
         //Dimension of the floor
-        double sizeX;
-        double sizeY;
+        int sizeX;
+        int sizeY;
         @display("bgb=sizeX,sizeY;bgu=m");
 
         //Radius

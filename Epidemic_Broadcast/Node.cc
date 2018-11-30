@@ -58,6 +58,7 @@ void Node::handleMessage(cMessage *msg)
                infected = true;
                bubble("INFECTED");
 
+               emit(slotCountSignal, messageToRetransmit->getSlotTimeCount());
 
 
                //change icon of the simulation to show the infection
@@ -116,7 +117,6 @@ void Node::tryToSend(){
         // set a variable of transmission
         transmitted = true;
         bubble("TRANSMITTED");
-        emit(slotCountSignal, messageToRetransmit->getSlotTimeCount());
         // broadcast the message
         broadcastMessage();
     }else{
