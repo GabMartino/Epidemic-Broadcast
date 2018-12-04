@@ -7,8 +7,6 @@
 // 
 //   	Di Tecco Antonio - Martino Gabriele - Pulizzi Maurizio
  
- 
-
 simple Node
 {
     parameters:

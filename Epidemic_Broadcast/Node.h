@@ -11,16 +11,23 @@
 
 #include <omnetpp.h>
 #include "EpidemicMessage_m.h"
-
 using namespace omnetpp;
+
+//Macro for the initialization of the starter node
+#define RANDOM_STARTER_NODE         0
+#define STARTER_NODE_NEAR_CENTER    1
+#define STARTER_NODE_NEAR_VERTEX    2
+#define STARTER_NODE_NEAR_TOP_LEFT  3
 
 class Node : public cSimpleModule
 {
     private:
         //signals
-        simsignal_t hopCountSignal;
-        simsignal_t collisionNumber;
         simsignal_t slotCountSignal;
+        simsignal_t hopCountSignal;
+        simsignal_t collisionsOfInfectedSig;
+        simsignal_t collisionsOfNOTinfectedSig;
+        simsignal_t collisionDetection;
 
         // specifies infection (if an infection message is arrived with no collisions)
         bool infected = false;
@@ -45,6 +52,8 @@ class Node : public cSimpleModule
 
         virtual void broadcastMessage();
         virtual void tryToSend();
+        virtual void selectStarterNode();
+        virtual void setIndexOfStarterNode(double expectedPosX, double expectedPosY, bool anyVertex);
     protected:
         virtual void initialize() override;
         virtual void handleMessage(cMessage *msg) override;

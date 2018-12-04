@@ -11,15 +11,23 @@ network Floor
 {
     parameters:
         @signal[Infection](type="int");
-        @statistic[hopCountStat](title="Hop count"; source="Infection"; record = count, mean, min, max; );
+        @statistic[hopCountStat](title="Hop count"; source="Infection"; record = vector, count, mean, max; );
         
         
         @signal[SlotCountToTransmit](type="int");
-        @statistic[SlotTime](title="Broadcast Time"; source="SlotCountToTransmit"; record = count, mean, min, max; );
+        @statistic[SlotTimeStat](title="Slot count before receiving message"; source="SlotCountToTransmit"; record =vector, stats; );
         
-        @signal[Collisions](type="int");
-        @statistic[collisionStatistic](title= "Number of Collision"; source= "Collisions"; record = count, mean, min, max;);
+        @signal[CollisionsOfInfectedNode](type="int");
+        @statistic[collisionOfInfectedStat](title= "Number of Collisions of infected node"; source= "CollisionsOfInfectedNode"; record = vector,stats;);
         
+        @signal[CollisionsOfNotInfectedNode](type="int");
+        @statistic[collisionOfNotInfectedStat](title= "Number of Collisions of NOT infected node"; source= "CollisionsOfNotInfectedNode"; record = vector,stats;);
+        
+        @signal[detectionOfCollision](type="int");
+      	@statistic[detectionCollisionStat](title= "Number of Collisions for each slot"; source= count(detectionOfCollision); record = vector,stats;);
+        
+        //Selection criterion of the starter node
+        int selectionCriterionStarterNode;
         
         //Dimension of the floor
         int sizeX;
@@ -40,22 +48,21 @@ network Floor
         volatile double PosY;
 
         //Index of Starting node
-        int indexOfStartingNode = 0;
+        int indexOfStartingNode =default(0);
         
         //SlotTIme
         double slotTime @unit(ms);
-    submodules:
+    
+	submodules:
         node[numberOfNodes]: Node {
             parameters:
-    			posX = PosX;
-    			posY = PosY;
+    			posX = PosX % sizeX;
+    			posY = PosY % sizeY;
                 @display("p=$posX,$posY");
-                @display("r=$radius");
+                //@display("r=$radius");
         }
 		
-
-    connections:
-        
+	connections:
         // set all connection inside a radius
         for i = 0..numberOfNodes-2, for j= i+1..numberOfNodes-1{
             node[i].gate++ <--> node[j].gate++ if ((node[i].posX - node[j].posX)^2 + (node[i].posY - node[j].posY)^2) <= radius^2; 

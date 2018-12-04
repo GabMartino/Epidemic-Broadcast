@@ -1,0 +1,51 @@
+version 2
+run Test1-1-20181204-16:54:51-15836
+attr configname Test1
+attr datetime 20181204-16:54:51
+attr experiment Test1
+attr inifile omnetpp.ini
+attr iterationvars "$X=40, $Y=6"
+attr iterationvarsf X=40,Y=6-
+attr measurement "$X=40, $Y=6"
+attr network Floor
+attr processid 15836
+attr repetition 1
+attr replication #1
+attr resultdir results
+attr runnumber 1
+attr seedset 1
+itervar X 40
+itervar Y 6
+param Floor.sizeX 40
+param Floor.sizeY 6
+param Floor.selectionCriterionStarterNode 3
+param Floor.slotTime 100ms
+param Floor.radius 14
+param Floor.PosX uniform(0,40)
+param Floor.PosY uniform(0,6)
+param Floor.P 0.1
+param Floor.numberOfNodes 4
+param Floor.slotTime 100ms
+
+vector 0 Floor SlotTimeStat:vector ETV
+attr "" ""
+attr source SlotCountToTransmit
+attr title "Slot count before receiving message, vector"
+vector 1 Floor hopCountStat:vector ETV
+attr "" ""
+attr source Infection
+attr title "Hop count, vector"
+vector 2 Floor collisionOfInfectedStat:vector ETV
+attr "" ""
+attr source CollisionsOfInfectedNode
+attr title "Number of Collisions of infected node, vector"
+0	2	100	1
+0	7	300	3
+0	8	300	3
+1	2	100	1
+1	7	300	2
+1	8	300	2
+2	2	100	0
+2	7	300	0
+2	8	300	0
+

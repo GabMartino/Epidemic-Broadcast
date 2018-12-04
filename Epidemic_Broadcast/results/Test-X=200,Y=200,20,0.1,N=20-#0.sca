@@ -1,0 +1,85 @@
+version 2
+run Test-0-20181204-17:23:08-13232
+attr configname Test
+attr datetime 20181204-17:23:08
+attr experiment Test
+attr inifile omnetpp.ini
+attr iterationvars "$X=200, $Y=200, $0=20, $1=0.1, $N=20"
+attr iterationvarsf X=200,Y=200,20,0.1,N=20-
+attr measurement "$X=200, $Y=200, $0=20, $1=0.1, $N=20"
+attr network Floor
+attr processid 13232
+attr repetition 0
+attr replication #0
+attr resultdir results
+attr runnumber 0
+attr seedset 0
+itervar N 20
+itervar X 200
+itervar Y 200
+param Floor.sizeX 200
+param Floor.sizeY 200
+param Floor.radius 20
+param Floor.PosX uniform(0,200)
+param Floor.PosY uniform(0,200)
+param Floor.P 0.1
+param Floor.numberOfNodes 20
+param Floor.slotTime 100ms
+
+statistic Floor detectionCollisionStat:stats
+field count 0
+field mean nan
+field stddev nan
+field min nan
+field max nan
+field sum 0
+field sqrsum 0
+attr "" ""
+attr source count(detectionOfCollision)
+attr title "Number of Collisions for each slot, stats"
+statistic Floor collisionOfNotInfectedStat:stats
+field count 0
+field mean nan
+field stddev nan
+field min nan
+field max nan
+field sum 0
+field sqrsum 0
+attr "" ""
+attr source CollisionsOfNotInfectedNode
+attr title "Number of Collisions of NOT infected node, stats"
+statistic Floor collisionOfInfectedStat:stats
+field count 1
+field mean 0
+field stddev nan
+field min 0
+field max 0
+field sum 0
+field sqrsum 0
+attr "" ""
+attr source CollisionsOfInfectedNode
+attr title "Number of Collisions of infected node, stats"
+statistic Floor SlotTimeStat:stats
+field count 1
+field mean 1
+field stddev nan
+field min 1
+field max 1
+field sum 1
+field sqrsum 1
+attr "" ""
+attr source SlotCountToTransmit
+attr title "Slot count before receiving message, stats"
+scalar Floor hopCountStat:count 1
+attr "" ""
+attr source Infection
+attr title "Hop count, count"
+scalar Floor hopCountStat:mean 1
+attr "" ""
+attr source Infection
+attr title "Hop count, mean"
+scalar Floor hopCountStat:max 1
+attr "" ""
+attr source Infection
+attr title "Hop count, max"
+
