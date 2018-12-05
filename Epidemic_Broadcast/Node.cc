@@ -57,55 +57,55 @@ void Node::handleMessage(cMessage *msg)
 {
     // this node is not infected: collisions happend
     if(!infected){
-        // a selfMessage points that a slot time of transmission is finished
-        if(msg->isSelfMessage()){
+            // a selfMessage points that a slot time of transmission is finished
+            if(msg->isSelfMessage()){
 
-           // if in a slot time has been received only a message, everything is ok
-           if(messageCounter == 1){
-               infected = true;
-               bubble("INFECTED");
+                   // if in a slot time has been received only a message, everything is ok
+                   if(messageCounter == 1){
+                       infected = true;
+                       bubble("INFECTED");
 
-               // Emission of the signals
-               messageToRetransmit->setSlotTimeCount(messageToRetransmit->getSlotTimeCount()+1);
-               emit(slotCountSignal, messageToRetransmit->getSlotTimeCount());
-               messageToRetransmit->setHopCount(messageToRetransmit->getHopCount()+1);
-               emit(hopCountSignal, messageToRetransmit->getHopCount());
-               emit(collisionsOfInfectedSig, numberOfCollision);
+                       // Emission of the signals
+                       messageToRetransmit->setSlotTimeCount(messageToRetransmit->getSlotTimeCount()+1);
+                       emit(slotCountSignal, messageToRetransmit->getSlotTimeCount());
+                       messageToRetransmit->setHopCount(messageToRetransmit->getHopCount()+1);
+                       emit(hopCountSignal, messageToRetransmit->getHopCount());
+                       emit(collisionsOfInfectedSig, numberOfCollision);
 
-               //change icon of the simulation to show the infection
-               if(hasGUI()){
-                   cDisplayString& displayString = getDisplayString();
-                   displayString.setTagArg("i", 0, "block/circle");
-               }
-               // try to transmit
-               tryToSend();
+                       //change icon of the simulation to show the infection
+                       if(hasGUI()){
+                           cDisplayString& displayString = getDisplayString();
+                           displayString.setTagArg("i", 0, "block/circle");
+                       }
+                       // try to transmit
+                       tryToSend();
 
-           }else{// otherwise collision: other messages arrived in a slotTime
-               bubble("COLLISION");
-               emit(collisionDetection, 1);
+                   }else{// otherwise collision: other messages arrived in a slotTime
+                       bubble("COLLISION");
+                       emit(collisionDetection, 1);
 
-               //reset counter
-               messageCounter = 0;
-               numberOfCollision++;
+                       //reset counter
+                       messageCounter = 0;
+                       numberOfCollision++;
 
-               //delete the stored message
-               delete messageToRetransmit;
-               messageToRetransmit = nullptr;
+                       //delete the stored message
+                       delete messageToRetransmit;
+                       messageToRetransmit = nullptr;
+                   }
+           }else{// New message is arrived
+
+                   // count messages arrived
+                   messageCounter++;
+                   if(messageCounter == 1){ // first attempt
+                       // storing of the message
+                       messageToRetransmit = check_and_cast<epidemicMessage*>(msg)->dup();
+
+                       // The transmission time is a slot so a selfmessage is sent when the transmission is finished
+                       scheduleAt(simTime() + slotTime, new cMessage("Reception finished"));
+                   }
            }
-       }else{// New message is arrived
-
-           // count messages arrived
-           messageCounter++;
-           if(messageCounter == 1){ // first attempt
-               // storing of the message
-               messageToRetransmit = check_and_cast<epidemicMessage*>(msg)->dup();
-
-               // The transmission time is a slot so a selfmessage is sent when the transmission is finished
-               scheduleAt(simTime() + slotTime, new cMessage("Reception finished"));
-           }
-       }
-    }else if(infected && !transmitted){// this node is infected and tries to broadcast infection
-        tryToSend();
+    }else if(infected && !transmitted && msg->isSelfMessage()){// this node is infected and tries to broadcast infection
+            tryToSend();                                           // when a node is infected, it must listen to self-messages only
     }
 
     // delete anyway the message: if a new one, 'cause has been stored, if is collision one or if is a selfMessage one
@@ -162,7 +162,6 @@ void Node::broadcastMessage(){
 }
 
 void Node::finish(){
-    EV<<"SONO IL NODO "<<this->getIndex()<<" E HO FINITOOOOO"<<endl;
     if(!infected && numberOfCollision > 0){
         emit(collisionsOfNOTinfectedSig, numberOfCollision);
     }
