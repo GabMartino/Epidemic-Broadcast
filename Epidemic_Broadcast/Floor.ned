@@ -11,20 +11,20 @@ network Floor
 {
     parameters:
         @signal[Infection](type="int");
-        @statistic[hopCountStat](title="Hop count"; source="Infection"; record = vector, count, mean, max; );
+        @statistic[hopCountStat](title="Hop count"; source="Infection"; record = count, mean, max; );
         
         
         @signal[SlotCountToTransmit](type="int");
-        @statistic[SlotTimeStat](title="Slot count before receiving message"; source="SlotCountToTransmit"; record =vector, stats; );
+        @statistic[SlotTimeStat](title="Slot count before receiving message"; source="SlotCountToTransmit"; record =max, mean; );
         
         @signal[CollisionsOfInfectedNode](type="int");
-        @statistic[collisionOfInfectedStat](title= "Number of Collisions of infected node"; source= "CollisionsOfInfectedNode"; record = vector,stats;);
+        @statistic[collisionOfInfectedStat](title= "Number of Collisions of infected node"; source= "CollisionsOfInfectedNode"; record =sum, count, mean, max;);
         
         @signal[CollisionsOfNotInfectedNode](type="int");
-        @statistic[collisionOfNotInfectedStat](title= "Number of Collisions of NOT infected node"; source= "CollisionsOfNotInfectedNode"; record = vector,stats;);
+        @statistic[collisionOfNotInfectedStat](title= "Number of Collisions of NOT infected node"; source= "CollisionsOfNotInfectedNode"; record =sum, count, mean, max;);
         
         @signal[detectionOfCollision](type="int");
-      	@statistic[detectionCollisionStat](title= "Number of Collisions for each slot"; source= count(detectionOfCollision); record = vector,stats;);
+      	@statistic[detectionCollisionStat](title= "Number of Collisions for each slot"; source= count(detectionOfCollision); record = stats;);
         
         //Selection criterion of the starter node
         int selectionCriterionStarterNode;
