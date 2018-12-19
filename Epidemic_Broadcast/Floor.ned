@@ -11,11 +11,13 @@ network Floor
 {
     parameters:
         @signal[Infection](type="int");
-        @statistic[hopCountStat](title="Hop count"; source="Infection"; record = count, mean, max; );
+        @statistic[hopCountStat](title="Hop count"; source=count(Infection); record = count, mean, max, vector );
         
+        @signal[Quantile](type="int");
+        @statistic[Quantile](title="Quantile of broadcast time"; source="Quantile"; record = max );
         
         @signal[SlotCountToTransmit](type="int");
-        @statistic[SlotTimeStat](title="Slot count before receiving message"; source="SlotCountToTransmit"; record =max, mean; );
+        @statistic[SlotTimeStat](title="Slot count before receiving message"; source=SlotCountToTransmit; record =max, mean, count; );
         
         @signal[CollisionsOfInfectedNode](type="int");
         @statistic[collisionOfInfectedStat](title= "Number of Collisions of infected node"; source= "CollisionsOfInfectedNode"; record =sum, count, mean, max;);
@@ -39,6 +41,12 @@ network Floor
 
         //Number of nodes
         int numberOfNodes;
+        
+        //quantile broadcast tyme
+        double quantileBT=default(0.9);
+        
+        //index of how many nodes have been received the message
+        int howManyNod=0;
 
         //Retransmission Probability
         double P;
@@ -59,7 +67,7 @@ network Floor
     			posX = PosX % sizeX;
     			posY = PosY % sizeY;
                 @display("p=$posX,$posY");
-                //@display("r=$radius");
+                @display("r=$radius");
         }
 		
 	connections:

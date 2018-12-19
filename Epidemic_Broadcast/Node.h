@@ -28,7 +28,7 @@ class Node : public cSimpleModule
         simsignal_t collisionsOfInfectedSig;
         simsignal_t collisionsOfNOTinfectedSig;
         simsignal_t collisionDetection;
-
+        simsignal_t quantileSignal;
         // specifies infection (if an infection message is arrived with no collisions)
         bool infected = false;
 
@@ -49,6 +49,9 @@ class Node : public cSimpleModule
 
         //number of collision
         int numberOfCollision = 0;
+
+        int slotOfInfection=-1; //slot nel quale il nodo viene infettato
+        int numbrerInfNode=-1; // conterrà quanti nodi si sono infettati prima di lui +1
 
         virtual void broadcastMessage();
         virtual void tryToSend();

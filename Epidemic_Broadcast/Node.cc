@@ -29,6 +29,7 @@ void Node::initialize()
     collisionsOfInfectedSig = registerSignal("CollisionsOfInfectedNode");
     collisionsOfNOTinfectedSig = registerSignal("CollisionsOfNotInfectedNode");
     collisionDetection = registerSignal("detectionOfCollision");
+    quantileSignal = registerSignal("Quantile");
 
     // if this is the starter node
     if(this->getIndex() == getParentModule()->par("indexOfStartingNode").intValue()){
@@ -71,6 +72,13 @@ void Node::handleMessage(cMessage *msg)
                        messageToRetransmit->setHopCount(messageToRetransmit->getHopCount()+1);
                        emit(hopCountSignal, messageToRetransmit->getHopCount());
                        emit(collisionsOfInfectedSig, numberOfCollision);
+
+                       numbrerInfNode= (getParentModule()->par("howManyNod").intValue());
+                       ++numbrerInfNode;
+                       getParentModule()->par("howManyNod")=numbrerInfNode;
+                       EV<<numbrerInfNode<<"  NUMEROOOOOOOOOOOOO NODO";
+                       slotOfInfection = messageToRetransmit->getSlotTimeCount();
+
 
                        //change icon of the simulation to show the infection
                        if(hasGUI()){
@@ -164,6 +172,9 @@ void Node::broadcastMessage(){
 void Node::finish(){
     if(!infected && numberOfCollision > 0){
         emit(collisionsOfNOTinfectedSig, numberOfCollision);
+    }
+    if(numbrerInfNode== (int)(getParentModule()->par("howManyNod").intValue()*getParentModule()->par("quantileBT").doubleValue()) ){
+        emit(quantileSignal, slotOfInfection);
     }
 }
 
