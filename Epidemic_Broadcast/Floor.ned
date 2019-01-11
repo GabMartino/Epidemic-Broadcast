@@ -11,13 +11,13 @@ network Floor
 {
     parameters:
         @signal[Infection](type="int");
-        @statistic[hopCountStat](title="Hop count"; source=count(Infection); record = count, mean, max, vector );
+        @statistic[hopCountStat](title="Hop count"; source=Infection; record = count, mean, max, histogram, vector );
         
         @signal[Quantile](type="int");
         @statistic[Quantile](title="Quantile of broadcast time"; source="Quantile"; record = max );
         
         @signal[SlotCountToTransmit](type="int");
-        @statistic[SlotTimeStat](title="Slot count before receiving message"; source=SlotCountToTransmit; record =max, mean, count; );
+        @statistic[SlotTimeStat](title="Slot count before receiving message"; source=SlotCountToTransmit; record =histogram, max, mean, count; );
         
         @signal[CollisionsOfInfectedNode](type="int");
         @statistic[collisionOfInfectedStat](title= "Number of Collisions of infected node"; source= "CollisionsOfInfectedNode"; record =sum, count, mean, max;);

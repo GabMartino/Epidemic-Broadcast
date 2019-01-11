@@ -76,7 +76,6 @@ void Node::handleMessage(cMessage *msg)
                        numbrerInfNode= (getParentModule()->par("howManyNod").intValue());
                        ++numbrerInfNode;
                        getParentModule()->par("howManyNod")=numbrerInfNode;
-                       EV<<numbrerInfNode<<"  NUMEROOOOOOOOOOOOO NODO";
                        slotOfInfection = messageToRetransmit->getSlotTimeCount();
 
 
