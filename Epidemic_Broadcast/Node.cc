@@ -15,19 +15,23 @@ Define_Module(Node);
 
 void Node::initialize()
 {
+    //set the node as starter
     if(this->getIndex() == 0){
         selectStarterNode();
     }
 
+
+    cModule* floor = getParentModule();
+
     // Take the slotTime and retransmissionProbability parameters from the network parameters
-    slotTime = getParentModule()->par("slotTime").doubleValue();
-    retransmissionProbability = getParentModule()->par("P").doubleValue();
+    slotTime = floor->par("slotTime").doubleValue();
+    retransmissionProbability = floor->par("P").doubleValue();
 
     // Registration of signals
     hopCountSignal = registerSignal("Infection");
     slotCountSignal = registerSignal("SlotCountToTransmit");
     collisionsOfInfectedSig = registerSignal("CollisionsOfInfectedNode");
-    collisionsOfNOTinfectedSig = registerSignal("CollisionsOfNotInfectedNode");
+    collisionsOfNotInfectedSig = registerSignal("CollisionsOfNotInfectedNode");
     collisionDetection = registerSignal("detectionOfCollision");
     quantileSignal = registerSignal("Quantile");
 
@@ -52,16 +56,16 @@ void Node::initialize()
 }
 
 /*
- * This method handle the messages arrived
+ * This method handles the arrived messages
  */
 void Node::handleMessage(cMessage *msg)
 {
-    // this node is not infected: collisions happend
+
     if(!infected){
             // a selfMessage points that a slot time of transmission is finished
             if(msg->isSelfMessage()){
 
-                   // if in a slot time has been received only a message, everything is ok
+                   // if in a slot time only one message has been received, there were no collisions
                    if(messageCounter == 1){
                        infected = true;
                        bubble("INFECTED");
@@ -69,13 +73,20 @@ void Node::handleMessage(cMessage *msg)
                        // Emission of the signals
                        messageToRetransmit->setSlotTimeCount(messageToRetransmit->getSlotTimeCount()+1);
                        emit(slotCountSignal, messageToRetransmit->getSlotTimeCount());
+
+
                        messageToRetransmit->setHopCount(messageToRetransmit->getHopCount()+1);
                        emit(hopCountSignal, messageToRetransmit->getHopCount());
+
+
                        emit(collisionsOfInfectedSig, numberOfCollision);
 
-                       numbrerInfNode= (getParentModule()->par("howManyNod").intValue());
-                       ++numbrerInfNode;
-                       getParentModule()->par("howManyNod")=numbrerInfNode;
+                       //Increment the generic counter of infected nodes
+                       countInfectedNode = (getParentModule()->par("counterInfectedNodes").intValue());
+                       ++countInfectedNode;
+                       getParentModule()->par("counterInfectedNodes") = countInfectedNode;
+
+
                        slotOfInfection = messageToRetransmit->getSlotTimeCount();
 
 
@@ -84,6 +95,8 @@ void Node::handleMessage(cMessage *msg)
                            cDisplayString& displayString = getDisplayString();
                            displayString.setTagArg("i", 0, "block/circle");
                        }
+
+
                        // try to transmit
                        tryToSend();
 
@@ -104,10 +117,11 @@ void Node::handleMessage(cMessage *msg)
                    // count messages arrived
                    messageCounter++;
                    if(messageCounter == 1){ // first attempt
+
                        // storing of the message
                        messageToRetransmit = check_and_cast<epidemicMessage*>(msg)->dup();
 
-                       // The transmission time is a slot so a selfmessage is sent when the transmission is finished
+                       // The transmission time is a slot so a selfmessage will be sent when the transmission ends
                        scheduleAt(simTime() + slotTime, new cMessage("Reception finished"));
                    }
            }
@@ -121,19 +135,18 @@ void Node::handleMessage(cMessage *msg)
 }
 
 /*
- * This method takes a message and tries to transmit with a certain probability
- * otherwise postpones to the next slot another try
+ * This method tries to transmit the stored message with a certain probability
+ * fixed by the floor
  */
 void Node::tryToSend(){
-    // extracts a 0 or a 1 with a Bernuallian probability setted
+    // extracts a 0 or a 1 with a Bernoullian probability set
     int check = bernoulli(retransmissionProbability);
 
     if(check){// broadcast message
-        EV<< "Transmission in progress"<<endl;
-        EV<< "slot time "<<messageToRetransmit->getSlotTimeCount()<<endl;
-        // set a variable of transmission
+
         transmitted = true;
         bubble("TRANSMITTED");
+
         // broadcast the message
         broadcastMessage();
     }else{
@@ -152,14 +165,9 @@ void Node::tryToSend(){
  *
  */
 void Node::broadcastMessage(){
-    /*
-     * Given that we used inout gates and we have duplicated gate.
-     * We need only out gate so we divided by 2 the number
-     * SEE IF THERE'S A METHOD THAT RETURNS ONLY THE OUTPUT GATE, OR USE AN ITERATOR
-     *
-     */
     int numGateOut = this->gateCount()/2;
 
+    //transmit the message to all output gates
     for(int i= 0; i < numGateOut; i++){
         epidemicMessage* copy = messageToRetransmit->dup();
         send(copy, "gate$o",i);
@@ -168,47 +176,62 @@ void Node::broadcastMessage(){
     messageToRetransmit = nullptr;
 }
 
+
+/*
+ * This method emits the latest signals
+ */
 void Node::finish(){
+    //if this is a not infected node and it had some collisions emit the signal
     if(!infected && numberOfCollision > 0){
-        emit(collisionsOfNOTinfectedSig, numberOfCollision);
+        emit(collisionsOfNotInfectedSig, numberOfCollision);
     }
-    if(numbrerInfNode== (int)(getParentModule()->par("howManyNod").intValue()*getParentModule()->par("quantileBT").doubleValue()) ){
+
+    /*
+     * if this is the Xth node among the infected ones, the slot in which it has been infected will be sent
+     */
+    if(countInfectedNode == (int)(getParentModule()->par("counterInfectedNodes").intValue()*getParentModule()->par("quantileBT").doubleValue()) ){
         emit(quantileSignal, slotOfInfection);
     }
 }
 
+
+/*
+ * This method fetchs the critirion of the starter node
+ * and sets the position near which the node will be
+ *
+ */
 void Node::selectStarterNode(){
-    int criterio = getParentModule()->par("selectionCriterionStarterNode").intValue();
-    double expectedPosX;
-    double expectedPosY;
-    switch(criterio){
-        case RANDOM_STARTER_NODE:
-            getParentModule()->par("indexOfStartingNode") = 0;
-            break;
+
+    cModule* floor=getParentModule();
+
+    //extract the critirion from parameters of the floor
+    int criterion = floor->par("selectionCriterionStarterNode").intValue();
+
+    //if the critirion is random, the starter node can simply be the node zero
+    if(criterion == RANDOM_STARTER_NODE){
+        getParentModule()->par("indexOfStartingNode") = 0;
+        return;
+    }
+
+    switch(criterion){
         case STARTER_NODE_NEAR_CENTER:
-            expectedPosX=getParentModule()->par("sizeX").intValue()/2;
-            expectedPosY=getParentModule()->par("sizeY").intValue()/2;
-            setIndexOfStarterNode(expectedPosX, expectedPosY, false);
+            setIndexOfStarterNode(floor->par("sizeX").intValue()/2, floor->par("sizeY").intValue()/2);
             break;
         case STARTER_NODE_NEAR_VERTEX:
-            expectedPosX=getParentModule()->par("sizeX").intValue();
-            expectedPosY=getParentModule()->par("sizeY").intValue();
-            setIndexOfStarterNode(expectedPosX, expectedPosY, true);
+            setIndexOfStarterNode(0, 0);
             break;
-        case STARTER_NODE_NEAR_TOP_LEFT:
-            setIndexOfStarterNode(0, 0, false);
-            break;
-
     }
 }
 
-void Node::setIndexOfStarterNode(double expectedPosX, double expectedPosY, bool anyVertex){
-    /*  Se anyVertex==false questa funzione imposta come starter node il nodo più vicino al
-     * punto (expectedPosX, expectedPosX).
-     * Se invece anyVertex==true allora expectedPosX e expectedPosY vengono intese come le
-     * dimenzioni del quadrilatero (stanza) e la funzione imposta come starter node il nodo
-     * più vicino ad uno dei quattro vertici del quadrilatero.
-     */
+/*
+ * This method receives a point of the space near which the closest node
+ * will be set as starter
+ *
+ * parameters:
+ *      double expectedPosX : x point representing the x position of starter node
+ *      double expectedPosY : y point representing the y position of starter node
+ */
+void Node::setIndexOfStarterNode(double expectedPosX, double expectedPosY){
 
     cModule* net=getParentModule();
     int numberOfNodes=net->par("numberOfNodes").intValue();
@@ -218,18 +241,18 @@ void Node::setIndexOfStarterNode(double expectedPosX, double expectedPosY, bool 
     double expectedX = expectedPosX;
     double expectedY = expectedPosY;
 
+    cModule* node;
+    double x;
+    double y;
 
+    // find the closest node near the point
     for(int i=0; i < numberOfNodes; ++i){
-        cModule* nod= net->getSubmodule("node", i);
-        double x = nod->par("posX");
-        double y = nod->par("posY");
+        node = net->getSubmodule("node", i);
+        x = node->par("posX");
+        y = node->par("posY");
 
-        if(anyVertex){
-            expectedX = (expectedPosX/2 > x)? 0 : expectedPosX;
-            expectedY = (expectedPosY/2 > y)? 0 : expectedPosY;
-        }
 
-        double distSquare = (x-expectedX)*(x-expectedX) + (y-expectedY)*(y-expectedY);
+        double distSquare = pow((x-expectedX),2) + pow((y-expectedY),2);
 
         if(distSquare < minDistSquare || minDistSquare == -1){
             minDistSquare = distSquare;
@@ -237,5 +260,6 @@ void Node::setIndexOfStarterNode(double expectedPosX, double expectedPosY, bool 
         }
     }
 
+    //set the starter node
     net->par("indexOfStartingNode") = bestIndex;
 }

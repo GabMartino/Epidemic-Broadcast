@@ -39,28 +39,33 @@ network Floor
         //Radius
         double radius;
 
-        //Number of nodes
-        int numberOfNodes;
+        
         
         //quantile broadcast tyme
         double quantileBT=default(0.9);
         
         //index of how many nodes have been received the message
-        int howManyNod=0;
+        int counterInfectedNodes=0;
 
         //Retransmission Probability
         double P;
 
-        //Distribution of Nodes;
-        volatile double PosX;
-        volatile double PosY;
+        
 
         //Index of Starting node
         int indexOfStartingNode =default(0);
         
         //SlotTIme
         double slotTime @unit(ms);
-    
+        
+        
+    	//Number of nodes
+        int numberOfNodes;
+        
+        //Distribution of Nodes;
+        volatile double PosX;
+        volatile double PosY;
+        
 	submodules:
         node[numberOfNodes]: Node {
             parameters:

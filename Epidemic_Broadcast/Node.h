@@ -17,7 +17,6 @@ using namespace omnetpp;
 #define RANDOM_STARTER_NODE         0
 #define STARTER_NODE_NEAR_CENTER    1
 #define STARTER_NODE_NEAR_VERTEX    2
-#define STARTER_NODE_NEAR_TOP_LEFT  3
 
 class Node : public cSimpleModule
 {
@@ -26,10 +25,11 @@ class Node : public cSimpleModule
         simsignal_t slotCountSignal;
         simsignal_t hopCountSignal;
         simsignal_t collisionsOfInfectedSig;
-        simsignal_t collisionsOfNOTinfectedSig;
+        simsignal_t collisionsOfNotInfectedSig;
         simsignal_t collisionDetection;
         simsignal_t quantileSignal;
-        // specifies infection (if an infection message is arrived with no collisions)
+
+
         bool infected = false;
 
         // specifies if the node sent the message in broadcast
@@ -51,12 +51,13 @@ class Node : public cSimpleModule
         int numberOfCollision = 0;
 
         int slotOfInfection=-1; //slot nel quale il nodo viene infettato
-        int numbrerInfNode=-1; // conterrà quanti nodi si sono infettati prima di lui +1
+        int countInfectedNode=-1; // conterrï¿½ quanti nodi si sono infettati prima di lui +1
 
         virtual void broadcastMessage();
         virtual void tryToSend();
         virtual void selectStarterNode();
-        virtual void setIndexOfStarterNode(double expectedPosX, double expectedPosY, bool anyVertex);
+        virtual void setIndexOfStarterNode(double expectedPosX, double expectedPosY);
+
     protected:
         virtual void initialize() override;
         virtual void handleMessage(cMessage *msg) override;
