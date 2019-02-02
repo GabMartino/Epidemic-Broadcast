@@ -1,0 +1,13 @@
+eclipse.preferences.version=1
+environment/buildEnvironmentInclude/org.omnetpp.cdt.gnu.config.release.1971068609/CPATH/delimiter=;
+environment/buildEnvironmentInclude/org.omnetpp.cdt.gnu.config.release.1971068609/CPATH/operation=remove
+environment/buildEnvironmentInclude/org.omnetpp.cdt.gnu.config.release.1971068609/CPLUS_INCLUDE_PATH/delimiter=;
+environment/buildEnvironmentInclude/org.omnetpp.cdt.gnu.config.release.1971068609/CPLUS_INCLUDE_PATH/operation=remove
+environment/buildEnvironmentInclude/org.omnetpp.cdt.gnu.config.release.1971068609/C_INCLUDE_PATH/delimiter=;
+environment/buildEnvironmentInclude/org.omnetpp.cdt.gnu.config.release.1971068609/C_INCLUDE_PATH/operation=remove
+environment/buildEnvironmentInclude/org.omnetpp.cdt.gnu.config.release.1971068609/append=true
+environment/buildEnvironmentInclude/org.omnetpp.cdt.gnu.config.release.1971068609/appendContributed=true
+environment/buildEnvironmentLibrary/org.omnetpp.cdt.gnu.config.release.1971068609/LIBRARY_PATH/delimiter=;
+environment/buildEnvironmentLibrary/org.omnetpp.cdt.gnu.config.release.1971068609/LIBRARY_PATH/operation=remove
+environment/buildEnvironmentLibrary/org.omnetpp.cdt.gnu.config.release.1971068609/append=true
+environment/buildEnvironmentLibrary/org.omnetpp.cdt.gnu.config.release.1971068609/appendContributed=true
