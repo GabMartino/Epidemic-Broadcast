@@ -28,10 +28,17 @@ network Floor
 
         //Selection criterion of the starter node
         int selectionCriterionStarterNode;
+<<<<<<< HEAD
 
+=======
+        
+        int area=default(-1); // Floor area
+        double XoverY = default(-1); // Floor shape
+        
+>>>>>>> 87138ded54a0980abd806e648176952e01b66de5
         //Dimension of the floor
-        int sizeX;
-        int sizeY;
+        double sizeX;
+        double sizeY;
         @display("bgb=sizeX,sizeY;bgu=m");
 
         //Radius

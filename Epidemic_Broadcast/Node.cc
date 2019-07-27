@@ -215,7 +215,7 @@ void Node::selectStarterNode(){
 
     switch(criterion){
         case STARTER_NODE_NEAR_CENTER:
-            setIndexOfStarterNode(floor->par("sizeX").intValue()/2, floor->par("sizeY").intValue()/2);
+            setIndexOfStarterNode(floor->par("sizeX").doubleValue()/2, floor->par("sizeY").doubleValue()/2);
             break;
         case STARTER_NODE_NEAR_VERTEX:
             setIndexOfStarterNode(0, 0);
