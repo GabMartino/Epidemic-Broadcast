@@ -12,4 +12,4 @@ Epidemic-Broadcast is a broadcasting protocol; this repo will include an OMNET++
 * **Gabriele Martino** - **Maurizio Pulizzi** - **Antonio Di Tecco** *
 See also the list of [contributors](https://github.com/GabMartino/Epidemic-Broadcast/contributors) who participated in this project.
 
-* Participants contributed for the same amount
+\* Participants contributed for the same amount
